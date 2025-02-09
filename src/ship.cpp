@@ -1,12 +1,10 @@
 #include "ship.h"
 
-#include <iostream>
-
 #include "conf.h"
 #include "raymath.h"
 
-Ship::Ship(const Texture2D& texture, Vector2 pos)
-    : Actor(pos, conf::sheep_speed), _texture(texture) {}
+Ship::Ship(const Texture& texture, Vector2 pos, std::function<void(Vector2)> shootLaser)
+    : Actor(pos, conf::sheep_speed), _texture(texture), shootLaser(shootLaser) {}
 
 void Ship::input() {
   _dir.x = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
@@ -14,7 +12,10 @@ void Ship::input() {
   _dir = Vector2Normalize(_dir);
 
   if (IsKeyPressed(KEY_SPACE)) {
-    std::cout << "laser\n";
+    shootLaser({
+      _pos.x + 0.5f * _texture.width,
+      _pos.y,
+    });
   }
 }
 
@@ -36,9 +37,14 @@ void Ship::draw() const {
   DrawTextureV(_texture, _pos, WHITE);
 }
 
-Laser::Laser(const Texture2D& texture, Vector2 pos)
-    : Actor(pos, conf::laser_speed), _texture(texture) {}
+Laser::Laser(const Texture* texture, Vector2 pos)
+    : Actor(pos, conf::laser_speed, {0, -1}), _texture(texture) {}
 
-void Laser::update(float dt) {}
+void Laser::update(float dt) {
+  move(dt);
+  checkDiscard();
+}
 
-void Laser::draw() const {}
+void Laser::draw() const {
+  DrawTextureV(*_texture, _pos, WHITE);
+}

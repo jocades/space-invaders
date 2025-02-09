@@ -9,6 +9,8 @@ class Actor {
   float _speed;
 
  public:
+  bool discard;
+
   Actor(Vector2 pos, float speed, Vector2 dir = {0, 0});
   virtual ~Actor() = default;
 
@@ -19,4 +21,5 @@ class Actor {
   void setPos(Vector2 pos);
 
   void move(float dt);
+  void checkDiscard();
 };

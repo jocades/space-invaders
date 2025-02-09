@@ -1,17 +1,20 @@
 #include "assets.h"
 
+#include <filesystem>
+
 namespace assets {
 
-std::unordered_map<std::string, Texture2D> textures;
+std::filesystem::path dir = "assets";
+
+std::unordered_map<std::string, Texture> textures;
 std::unordered_map<std::string, Sound> sounds;
 
-const Texture2D& loadTexture(const std::string& name, const std::string& path) {
-  textures[name] = LoadTexture(path.c_str());
-  return textures[name];
+void loadTexture(const std::string& name, const std::string& path) {
+  textures[name] = LoadTexture((dir / path).c_str());
 }
 
 void loadSound(const std::string& name, const std::string& path) {
-  sounds[name] = LoadSound(path.c_str());
+  sounds[name] = LoadSound((dir / path.c_str()).c_str());
 }
 
 void unloadTextures() {

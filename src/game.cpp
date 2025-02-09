@@ -2,12 +2,25 @@
 
 #include <raylib.h>
 
-#include <utility>
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include "assets.h"
 #include "conf.h"
 #include "rng.h"
+
+struct A {
+  std::string name;
+  int age;
+  A(std::string name, int age) : name(name), age(age) {}
+};
+
+void ex() {
+  A a("Jordi", 25);
+  std::vector<A> v = {A("Alice", 10), A("Bob", 20)};
+  std::erase_if(v, [](const A& a1) { return a1.age > 10; });
+}
 
 Game::Game() {
   InitWindow(conf::scrw, conf::scrh, conf::title);
@@ -16,27 +29,35 @@ Game::Game() {
 }
 
 void Game::load() {
-  const Texture2D& texture = assets::loadTexture("ship", "./assets/images/spaceship.png");
-  _ship = std::make_unique<Ship>(
-    texture,
-    Vector2{
-      conf::scrw / 2 - float(texture.width) / 2,
-      conf::scrh / 2 - float(texture.height) / 2,
-    }
-  );
-
-  assets::loadTexture("laser", "./assets/images/laser.png");
-  _laser = std::make_unique<Laser>(assets::textures["laser"], Vector2{0, 0});
-
-  assets::loadTexture("star", "./assets/images/star.png");
-  for (int i = 0; i < 30; i++) {
-    _stars.emplace_back(rng::randvec2(0, conf::scrw, 0, conf::scrh), rng::uniform(0.5, 1.5));
-  }
+  assets::loadTexture("ship", "images/spaceship.png");
+  assets::loadTexture("laser", "images/laser.png");
+  assets::loadTexture("star", "images/star.png");
+  createShip();
+  createStars();
 }
 
 Game::~Game() {
   assets::unload();
   CloseWindow();
+}
+
+void Game::createShip() {
+  const Texture& texture = assets::textures["ship"];
+
+  _ship = std::make_unique<Ship>(
+    texture,
+    Vector2{
+      conf::scrw / 2 - float(texture.width) / 2,
+      conf::scrh / 2 - float(texture.height) / 2,
+    },
+    [this](Vector2 pos) { this->shootLaser(pos); }
+  );
+}
+
+void Game::createStars() {
+  for (int i = 0; i < 30; i++) {
+    _stars.emplace_back(rng::randvec2(0, conf::scrw, 0, conf::scrh), rng::uniform(0.5, 1.5));
+  }
 }
 
 void Game::run() {
@@ -49,17 +70,32 @@ void Game::run() {
 void Game::update() {
   float dt = GetFrameTime();
   _ship->update(dt);
+  discard();
+  for (auto& laser : _lasers) laser.update(dt);
+  std::cout << _lasers.size() << '\n';
+}
+
+void Game::discard() {
+  std::erase_if(_lasers, [](Laser& laser) { return laser.discard; });
 }
 
 void Game::draw() {
   BeginDrawing();
   ClearBackground(conf::bg_color);
 
-  _ship->draw();
-
   for (const auto& [pos, size] : _stars) {
     DrawTextureEx(assets::textures["star"], pos, 0, size, WHITE);
   }
 
+  for (const auto& laser : _lasers) laser.draw();
+  _ship->draw();
+
   EndDrawing();
+}
+
+void Game::shootLaser(Vector2 pos) {
+  const Texture* texture = &assets::textures["laser"];
+  pos.x -= 0.5f * texture->width;
+  pos.y -= 0.2f * texture->height;
+  _lasers.emplace_back(texture, pos);
 }
