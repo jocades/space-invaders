@@ -2,15 +2,26 @@
 
 #include <raylib.h>
 
-class Ship {
+#include "actor.h"
+
+class Ship : public Actor {
  private:
-  Texture2D& _texture;
-  Vector2 _pos;
-  Vector2 _dir;
-  float _speed;
+  const Texture2D& _texture;
+  void input();
+  void constrain();
 
  public:
-  Ship(Texture2D& texture, float speed);
-  void update(float dt);
-  void draw();
+  Ship(const Texture2D& texture, Vector2 pos);
+  void update(float dt) override;
+  void draw() const override;
+};
+
+class Laser : public Actor {
+ private:
+  const Texture2D& _texture;
+
+ public:
+  Laser(const Texture2D& texture, Vector2 pos);
+  void update(float dt) override;
+  void draw() const override;
 };
