@@ -9,7 +9,7 @@ class Actor {
   float _speed;
 
  public:
-  bool discard;
+  bool discard = false;
 
   Actor(Vector2 pos, float speed, Vector2 dir = {0, 0});
   virtual ~Actor() = default;

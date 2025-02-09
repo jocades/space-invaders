@@ -1,10 +1,15 @@
 #include "ship.h"
 
+#include <iostream>
+
 #include "conf.h"
 #include "raymath.h"
 
 Ship::Ship(const Texture& texture, Vector2 pos, std::function<void(Vector2)> shootLaser)
-    : Actor(pos, conf::sheep_speed), _texture(texture), shootLaser(shootLaser) {}
+    : Actor(pos, conf::sheep_speed),
+      _texture(texture),
+      _timer(Timer(2, true, true, []() { std::cout << "Timer done!\n"; })),
+      shootLaser(shootLaser) {}
 
 void Ship::input() {
   _dir.x = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
@@ -28,6 +33,8 @@ void Ship::constrain() {
 }
 
 void Ship::update(float dt) {
+  _timer.update();
+
   input();
   constrain();
   move(dt);

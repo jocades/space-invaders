@@ -2,25 +2,11 @@
 
 #include <raylib.h>
 
-#include <algorithm>
-#include <iostream>
 #include <vector>
 
 #include "assets.h"
 #include "conf.h"
 #include "rng.h"
-
-struct A {
-  std::string name;
-  int age;
-  A(std::string name, int age) : name(name), age(age) {}
-};
-
-void ex() {
-  A a("Jordi", 25);
-  std::vector<A> v = {A("Alice", 10), A("Bob", 20)};
-  std::erase_if(v, [](const A& a1) { return a1.age > 10; });
-}
 
 Game::Game() {
   InitWindow(conf::scrw, conf::scrh, conf::title);
@@ -72,7 +58,6 @@ void Game::update() {
   _ship->update(dt);
   discard();
   for (auto& laser : _lasers) laser.update(dt);
-  std::cout << _lasers.size() << '\n';
 }
 
 void Game::discard() {

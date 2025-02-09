@@ -4,7 +4,7 @@
 
 namespace assets {
 
-std::filesystem::path dir = "assets";
+const std::filesystem::path dir = "assets";
 
 std::unordered_map<std::string, Texture> textures;
 std::unordered_map<std::string, Sound> sounds;

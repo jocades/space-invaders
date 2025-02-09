@@ -5,10 +5,12 @@
 #include <functional>
 
 #include "actor.h"
+#include "timer.h"
 
 class Ship : public Actor {
  private:
-  const Texture _texture;
+  const Texture& _texture;
+  Timer _timer;
 
   void input();
   void constrain();
