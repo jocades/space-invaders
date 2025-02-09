@@ -28,11 +28,9 @@ void Game::load() {
   assets::loadTexture("laser", "./assets/images/laser.png");
   _laser = std::make_unique<Laser>(assets::textures["laser"], Vector2{0, 0});
 
-  assets::loadTexture("start", "./assets/images/star.png");
-
-  std::vector<std::pair<Vector2, float>> star_data;
+  assets::loadTexture("star", "./assets/images/star.png");
   for (int i = 0; i < 30; i++) {
-    star_data.push_back({rng::randvec2(0, conf::scrw, 0, conf::scrh), 10});
+    _stars.emplace_back(rng::randvec2(0, conf::scrw, 0, conf::scrh), rng::uniform(0.5, 1.5));
   }
 }
 
@@ -58,6 +56,10 @@ void Game::draw() {
   ClearBackground(conf::bg_color);
 
   _ship->draw();
+
+  for (const auto& [pos, size] : _stars) {
+    DrawTextureEx(assets::textures["star"], pos, 0, size, WHITE);
+  }
 
   EndDrawing();
 }
