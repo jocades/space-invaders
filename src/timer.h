@@ -1,16 +1,19 @@
+#pragma once
+
 #include <functional>
 
 class Timer {
  private:
-  int _duration;
+  float _duration;
   bool _repeat;
   float _start_time = 0.0f;
   bool _active = false;
   std::function<void()> _callback;
 
  public:
+  Timer() = default;
   Timer(
-    int duration,
+    float duration,
     bool repeat = false,
     bool autostart = false,
     std::function<void()> callback = nullptr

@@ -5,16 +5,18 @@
 namespace assets {
 
 const std::filesystem::path dir = "assets";
+const std::filesystem::path images_dir = dir / "images";
+const std::filesystem::path sounds_dir = dir / "sounds";
 
 std::unordered_map<std::string, Texture> textures;
 std::unordered_map<std::string, Sound> sounds;
 
 void loadTexture(const std::string& name, const std::string& path) {
-  textures[name] = LoadTexture((dir / path).c_str());
+  textures[name] = LoadTexture((images_dir / path).c_str());
 }
 
 void loadSound(const std::string& name, const std::string& path) {
-  sounds[name] = LoadSound((dir / path.c_str()).c_str());
+  sounds[name] = LoadSound((sounds_dir / path.c_str()).c_str());
 }
 
 void unloadTextures() {

@@ -1,15 +1,11 @@
 #include "ship.h"
 
-#include <iostream>
-
 #include "conf.h"
 #include "raymath.h"
+#include "rng.h"
 
 Ship::Ship(const Texture& texture, Vector2 pos, std::function<void(Vector2)> shootLaser)
-    : Actor(pos, conf::sheep_speed),
-      _texture(texture),
-      _timer(Timer(2, true, true, []() { std::cout << "Timer done!\n"; })),
-      shootLaser(shootLaser) {}
+    : Actor(pos, conf::sheep_speed), _texture(texture), shootLaser(shootLaser) {}
 
 void Ship::input() {
   _dir.x = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
@@ -33,8 +29,6 @@ void Ship::constrain() {
 }
 
 void Ship::update(float dt) {
-  _timer.update();
-
   input();
   constrain();
   move(dt);
@@ -53,5 +47,22 @@ void Laser::update(float dt) {
 }
 
 void Laser::draw() const {
+  DrawTextureV(*_texture, _pos, WHITE);
+}
+
+Meteor::Meteor(const Texture* texture)
+    : Actor(
+        rng::randvec2(0, conf::scrw, -150, -50),
+        rng::randint(300, 400),
+        {rng::uniform(-0.5, 0.5), 1}
+      ),
+      _texture(texture) {};
+
+void Meteor::update(float dt) {
+  move(dt);
+  checkDiscard();
+}
+
+void Meteor::draw() const {
   DrawTextureV(*_texture, _pos, WHITE);
 }

@@ -8,16 +8,17 @@
 #include "conf.h"
 #include "rng.h"
 
-Game::Game() {
+Game::Game() : _meteor_timer(Timer(0.4, true, true, [this]() { this->createMeteor(); })) {
   InitWindow(conf::scrw, conf::scrh, conf::title);
   rng::init();
   load();
 }
 
 void Game::load() {
-  assets::loadTexture("ship", "images/spaceship.png");
-  assets::loadTexture("laser", "images/laser.png");
-  assets::loadTexture("star", "images/star.png");
+  assets::loadTexture("ship", "spaceship.png");
+  assets::loadTexture("laser", "laser.png");
+  assets::loadTexture("star", "star.png");
+  assets::loadTexture("meteor", "meteor.png");
   createShip();
   createStars();
 }
@@ -46,6 +47,10 @@ void Game::createStars() {
   }
 }
 
+void Game::createMeteor() {
+  _meteors.emplace_back(&assets::textures["meteor"]);
+}
+
 void Game::run() {
   while (!WindowShouldClose()) {
     update();
@@ -53,34 +58,44 @@ void Game::run() {
   }
 }
 
-void Game::update() {
-  float dt = GetFrameTime();
-  _ship->update(dt);
-  discard();
-  for (auto& laser : _lasers) laser.update(dt);
+void Game::shootLaser(Vector2 pos) {
+  const Texture* texture = &assets::textures["laser"];
+  pos.x -= 0.5f * texture->width;
+  pos.y -= 0.2f * texture->height;
+  _lasers.emplace_back(texture, pos);
 }
 
 void Game::discard() {
-  std::erase_if(_lasers, [](Laser& laser) { return laser.discard; });
+  std::erase_if(_lasers, [](const Laser& laser) { return laser.discard; });
+  std::erase_if(_meteors, [](const Meteor& meteor) { return meteor.discard; });
+}
+
+void Game::update() {
+  float dt = GetFrameTime();
+  _meteor_timer.update();
+  discard();
+  _ship->update(dt);
+  for (auto& laser : _lasers) laser.update(dt);
+  for (auto& meteor : _meteors) meteor.update(dt);
+}
+
+void Game::drawStars() {
+  for (const auto& [pos, size] : _stars) {
+    DrawTextureEx(assets::textures["star"], pos, 0, size, WHITE);
+  }
 }
 
 void Game::draw() {
   BeginDrawing();
   ClearBackground(conf::bg_color);
 
-  for (const auto& [pos, size] : _stars) {
-    DrawTextureEx(assets::textures["star"], pos, 0, size, WHITE);
-  }
+  drawStars();
 
   for (const auto& laser : _lasers) laser.draw();
+  for (const auto& meteor : _meteors) meteor.draw();
+
   _ship->draw();
 
+  DrawFPS(0, 0);
   EndDrawing();
-}
-
-void Game::shootLaser(Vector2 pos) {
-  const Texture* texture = &assets::textures["laser"];
-  pos.x -= 0.5f * texture->width;
-  pos.y -= 0.2f * texture->height;
-  _lasers.emplace_back(texture, pos);
 }

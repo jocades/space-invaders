@@ -3,7 +3,7 @@
 
 #include <raylib.h>
 
-Timer::Timer(int duration, bool repeat, bool autostart, std::function<void()> callback)
+Timer::Timer(float duration, bool repeat, bool autostart, std::function<void()> callback)
     : _duration(duration), _repeat(repeat), _callback(callback) {
   if (autostart) start();
 }
